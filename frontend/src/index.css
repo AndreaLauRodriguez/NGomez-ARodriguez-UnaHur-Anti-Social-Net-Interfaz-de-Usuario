@@ -1,0 +1,302 @@
+/* ==========================================================================
+   Estilos Personales - UnaHur Anti-Social Net (Complemento de Bootstrap 5)
+   Paleta de Colores "Anti-Social":
+   - Fondo general:            #161614 (Grafito cálido profundo)
+   - Superficies / Cards:      #232320 (Gris asfalto quemado)
+   - Texto principal:          #D6D3CD (Tiza o papel hueso envejecido)
+   - Texto secundario/Bordes:  #62605B (Piedra seca)
+   - Acento funcional (único): #B35D43 (Terracota desaturado)
+   ========================================================================== */
+
+:root,
+[data-bs-theme="dark"] {
+  --bg-general: #161614;
+  --bg-surface: #232320;
+  --text-primary-custom: #D6D3CD;
+  --text-secondary-border: #62605B;
+  --accent-terracotta: #B35D43;
+  --accent-terracotta-hover: #9a4d36;
+  --accent-terracotta-rgb: 179, 93, 67;
+
+  /* Variables nativas de Bootstrap adaptadas a la paleta */
+  --bs-body-bg: #161614;
+  --bs-body-color: #D6D3CD;
+  --bs-secondary-color: #62605B;
+  --bs-border-color: #62605B;
+  --bs-dark: #232320;
+  --bs-dark-rgb: 35, 35, 32;
+  --bs-info: #B35D43;
+  --bs-info-rgb: 179, 93, 67;
+  --bs-link-color: #B35D43;
+  --bs-link-hover-color: #D6D3CD;
+}
+
+/* --- Base Global --- */
+body {
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--bg-general);
+  color: var(--text-primary-custom);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Logos de la Marca (imagen4.jpg) --- */
+.navbar-logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.footer-logo-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.auth-logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+/* --- Aplicación de la Paleta sobre Utilidades de Bootstrap --- */
+.bg-dark,
+.card.bg-dark,
+.navbar.bg-dark,
+footer.bg-dark {
+  background-color: var(--bg-surface) !important;
+}
+
+.bg-body-tertiary {
+  background-color: var(--bg-general) !important;
+}
+
+.text-light,
+.text-white,
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary-custom) !important;
+}
+
+.text-secondary,
+.form-text {
+  color: var(--text-secondary-border) !important;
+}
+
+.text-info,
+code.text-info {
+  color: var(--accent-terracotta) !important;
+}
+
+.border,
+.border-top,
+.border-bottom,
+.border-start,
+.border-end,
+.border-secondary,
+hr {
+  border-color: var(--text-secondary-border) !important;
+}
+
+.border-info {
+  border-color: var(--accent-terracotta) !important;
+}
+
+/* Botón de acento principal (Terracota #B35D43) */
+.btn-info {
+  background-color: var(--accent-terracotta) !important;
+  border-color: var(--accent-terracotta) !important;
+  color: var(--text-primary-custom) !important;
+}
+
+.btn-info:hover,
+.btn-info:focus,
+.btn-info:active {
+  background-color: var(--accent-terracotta-hover) !important;
+  border-color: var(--accent-terracotta-hover) !important;
+  color: var(--text-primary-custom) !important;
+}
+
+/* Botón de contorno con acento (Terracota #B35D43) */
+.btn-outline-info {
+  color: var(--accent-terracotta) !important;
+  border-color: var(--accent-terracotta) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:focus,
+.btn-outline-info:active {
+  background-color: var(--accent-terracotta) !important;
+  border-color: var(--accent-terracotta) !important;
+  color: var(--text-primary-custom) !important;
+}
+
+.btn-outline-secondary {
+  color: var(--text-primary-custom) !important;
+  border-color: var(--text-secondary-border) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--text-secondary-border) !important;
+  border-color: var(--text-secondary-border) !important;
+  color: var(--bg-general) !important;
+}
+
+/* Badges y etiquetas con el acento terracota */
+.badge.bg-info:not(.bg-opacity-10) {
+  background-color: var(--accent-terracotta) !important;
+  color: var(--text-primary-custom) !important;
+}
+
+.bg-info.bg-opacity-10 {
+  background-color: rgba(179, 93, 67, 0.16) !important;
+}
+
+/* Inputs y Formularios Controlados */
+.form-control {
+  background-color: var(--bg-general) !important;
+  color: var(--text-primary-custom) !important;
+  border-color: var(--text-secondary-border) !important;
+}
+
+.form-control::placeholder {
+  color: var(--text-secondary-border) !important;
+  opacity: 0.85;
+}
+
+.form-control:focus {
+  background-color: var(--bg-general) !important;
+  color: var(--text-primary-custom) !important;
+  border-color: var(--accent-terracotta) !important;
+  box-shadow: 0 0 0 0.2rem rgba(179, 93, 67, 0.25) !important;
+}
+
+.input-group-text {
+  background-color: var(--bg-general) !important;
+  color: var(--accent-terracotta) !important;
+  border-color: var(--text-secondary-border) !important;
+}
+
+/* --- Carrusel de Inicio (Home) --- */
+.hero-banner {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: var(--bg-surface);
+}
+
+.carousel-hero-img {
+  height: 400px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.carousel-caption-bar {
+  background: linear-gradient(
+    0deg,
+    rgba(22, 22, 20, 0.96) 0%,
+    rgba(22, 22, 20, 0.78) 65%,
+    transparent 100%
+  );
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2.5rem 3rem 2rem;
+}
+
+.carousel-arrow-btn {
+  width: 46px;
+  height: 46px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(22, 22, 20, 0.82);
+  border: 1px solid var(--accent-terracotta);
+  border-radius: 50%;
+  opacity: 0.9;
+}
+
+.carousel-arrow-btn:hover {
+  background-color: var(--accent-terracotta);
+  opacity: 1;
+}
+
+.carousel-indicators [data-bs-target],
+.carousel-indicators button {
+  background-color: var(--accent-terracotta) !important;
+}
+
+.about-banner-img {
+  max-height: 220px;
+}
+
+/* --- Tarjetas de Publicación (PostCard) --- */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-terracotta) !important;
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.55) !important;
+}
+
+.post-card-img-container {
+  height: 210px;
+  background-color: var(--bg-general) !important;
+}
+
+.text-preline {
+  white-space: pre-line;
+}
+
+.tag-badge-clickable {
+  cursor: pointer;
+}
+
+.tag-badge-static {
+  cursor: default;
+}
+
+/* --- Detalle de Publicación (PostDetail) --- */
+.author-avatar-sm {
+  width: 42px;
+  height: 42px;
+}
+
+.post-detail-img {
+  max-height: 380px;
+}
+
+/* --- Perfil de Usuario (Profile) --- */
+.profile-header-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(179, 93, 67, 0.18) 0%,
+    rgba(35, 35, 32, 0.96) 100%
+  );
+}
+
+.profile-avatar-lg {
+  width: 76px;
+  height: 76px;
+}
+
+/* --- Crear Publicación (CreatePost) --- */
+.custom-tag-group {
+  max-width: 380px;
+}
+
+.create-post-preview-img {
+  height: 90px;
+  width: 140px;
+  object-fit: cover;
+}
