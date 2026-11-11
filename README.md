@@ -62,4 +62,4 @@ http://localhost:3000/api
 ## Integrantes del Grupo
 
 - **Materia:** Construcción de Interfaces de Usuario — Comisión 1 (UNAHUR)
-- **Grupo:** Data Forever
+- **Grupo:** Norma Gomez-Andrea Rodriguez
