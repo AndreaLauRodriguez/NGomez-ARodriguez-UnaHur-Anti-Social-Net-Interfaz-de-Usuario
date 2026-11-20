@@ -53,6 +53,7 @@ export interface CreatePostPayload {
   userId: string;
   tags: string[];
   images: string[];
+  imageFiles?: File[];
 }
 
 export interface CreateCommentPayload {
@@ -60,4 +61,3 @@ export interface CreateCommentPayload {
   userId: string;
   content: string;
 }
-

@@ -11,6 +11,7 @@ export const CreatePost = () => {
   // Estados controlados del formulario
   const [description, setDescription] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState('');
@@ -53,18 +54,17 @@ export const CreatePost = () => {
     setImageUrls((prev) => prev.filter((_, idx) => idx !== index));
   };
 
-  // Permite también cargar una imagen desde la computadora convirtiéndola a Data URL
-  const handleFileSelect = (index: number, e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Subida de archivos reales al servidor BackEnd (POST /api/posts/:id/images -> /uploads)
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const selected = Array.from(files);
+    setImageFiles((prev) => [...prev, ...selected]);
+    e.target.value = '';
+  };
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        handleImageChange(index, reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleRemoveFile = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   // Selección de etiquetas obtenidas desde la API
@@ -105,19 +105,13 @@ export const CreatePost = () => {
       return;
     }
 
-    // Filtramos las URLs de imágenes no vacías
+    // Validamos las URLs de imágenes ingresadas (deben ser http:// o https:// para pasar Joi.string().uri() en el BackEnd)
     const cleanUrls: string[] = [];
     for (const rawUrl of imageUrls) {
       const trimmed = rawUrl.trim();
       if (!trimmed) continue;
 
-      if (trimmed.startsWith('/')) {
-        cleanUrls.push(`${window.location.origin}${trimmed}`);
-      } else if (
-        trimmed.startsWith('http://') ||
-        trimmed.startsWith('https://') ||
-        trimmed.startsWith('data:image/')
-      ) {
+      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
         cleanUrls.push(trimmed);
       } else {
         setError(
@@ -134,9 +128,10 @@ export const CreatePost = () => {
         userId: user.id,
         tags: selectedTags,
         images: cleanUrls,
+        imageFiles,
       });
 
-      setSuccessMsg('¡Publicación creada exitosamente! Redirigiendo a tu perfil...');
+      setSuccessMsg('¡Publicación guardada en el BackEnd exitosamente! Redirigiendo a tu perfil...');
       setTimeout(() => {
         navigate('/profile');
       }, 1200);
@@ -144,7 +139,7 @@ export const CreatePost = () => {
       setError(
         err instanceof Error
           ? err.message
-          : 'Ocurrió un error al crear la publicación.'
+          : 'Ocurrió un error al guardar la publicación en el BackEnd.'
       );
     } finally {
       setSubmitting(false);
@@ -232,36 +227,23 @@ export const CreatePost = () => {
                           <input
                             type="url"
                             className="form-control border-secondary border-opacity-50"
-                            placeholder="Pegá la dirección directa de la imagen (https://...)"
-                            value={url.startsWith('data:image/') ? '' : url}
+                            placeholder={`https://ejemplo.com/imagen-${idx + 1}.jpg`}
+                            value={url}
                             onChange={(e) => handleImageChange(idx, e.target.value)}
                             disabled={submitting || Boolean(successMsg)}
                           />
-                          <label
-                            className="btn btn-outline-secondary mb-0"
-                            title="Elegir archivo de imagen desde tu PC"
-                          >
-                            <i className="bi bi-upload me-1"></i> Archivo
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="d-none"
-                              onChange={(e) => handleFileSelect(idx, e)}
-                              disabled={submitting || Boolean(successMsg)}
-                            />
-                          </label>
                           <button
                             type="button"
                             onClick={() => handleRemoveImageField(idx)}
                             className="btn btn-outline-danger"
-                            title="Quitar imagen"
+                            title="Quitar URL"
                             disabled={submitting || Boolean(successMsg)}
                           >
                             <i className="bi bi-trash"></i>
                           </button>
                         </div>
 
-                        {/* Vista previa en vivo de la imagen */}
+                        {/* Vista previa en vivo de la URL */}
                         {url.trim() && (
                           <div className="mt-2 d-flex align-items-center gap-2">
                             <img
@@ -270,17 +252,53 @@ export const CreatePost = () => {
                               className="rounded-3 border border-secondary create-post-preview-img"
                             />
                             <span className="text-secondary small">
-                              Vista previa de la imagen {idx + 1}
+                              Vista previa URL {idx + 1}
                             </span>
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
-                  <div className="form-text text-secondary small">
-                    Tip: Si copiás una foto de Google, hacé clic derecho sobre la foto y elegí{' '}
-                    <strong>"Copiar dirección de imagen"</strong>, o bien tocá el botón{' '}
-                    <strong>Archivo</strong> para elegir una de tu PC.
+
+                  {/* Opción adicional: subir archivo físico al BackEnd (/api/posts/:id/images -> /uploads) */}
+                  <div className="mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <span className="small text-secondary">
+                        <i className="bi bi-cloud-arrow-up text-info me-1"></i>
+                        ¿Preferís subir un archivo desde tu PC directo al BackEnd (<code>/uploads</code>)?
+                      </span>
+                      <label className="btn btn-outline-secondary btn-sm mb-0">
+                        <i className="bi bi-upload me-1"></i> Subir archivo al servidor
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="d-none"
+                          onChange={handleFileSelect}
+                          disabled={submitting || Boolean(successMsg)}
+                        />
+                      </label>
+                    </div>
+
+                    {imageFiles.length > 0 && (
+                      <div className="d-flex flex-wrap gap-2 mt-2">
+                        {imageFiles.map((file, idx) => (
+                          <span
+                            key={idx}
+                            className="badge bg-body-tertiary border border-secondary d-inline-flex align-items-center gap-2 py-2 px-3"
+                          >
+                            <i className="bi bi-file-earmark-image text-info"></i>
+                            {file.name}
+                            <button
+                              type="button"
+                              className="btn-close btn-close-white ms-1"
+                              aria-label="Quitar archivo"
+                              onClick={() => handleRemoveFile(idx)}
+                            ></button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 

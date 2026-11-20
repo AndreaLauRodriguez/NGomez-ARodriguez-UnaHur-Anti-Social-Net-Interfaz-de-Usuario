@@ -1,7 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { Post } from '../types';
-import { createComment, deletePost, getPostById } from '../services/api';
+import { createComment, deletePost, getPostById, uploadPostImageFile } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 export const PostDetail = () => {
@@ -123,6 +123,22 @@ export const PostDetail = () => {
     }
   };
 
+  const handleAddImageToPost = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!post || !files || files.length === 0) return;
+    try {
+      for (const file of Array.from(files)) {
+        await uploadPostImageFile(post.id, file);
+      }
+      e.target.value = '';
+      await fetchPost();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'No se pudo subir la imagen a la publicación.'
+      );
+    }
+  };
+
   const formattedPostDate = post.date
     ? new Date(post.date).toLocaleString('es-AR', {
         day: '2-digit',
@@ -166,13 +182,25 @@ export const PostDetail = () => {
                     ID: {post.id.slice(-6)}
                   </span>
                   {isOwner && (
-                    <button
-                      type="button"
-                      onClick={handleDeleteCurrentPost}
-                      className="btn btn-outline-danger btn-sm"
-                    >
-                      <i className="bi bi-trash me-1"></i> Eliminar
-                    </button>
+                    <>
+                      <label className="btn btn-outline-info btn-sm mb-0">
+                        <i className="bi bi-camera me-1"></i> Subir foto
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="d-none"
+                          onChange={handleAddImageToPost}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleDeleteCurrentPost}
+                        className="btn btn-outline-danger btn-sm"
+                      >
+                        <i className="bi bi-trash me-1"></i> Eliminar
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

@@ -1,0 +1,21 @@
+{
+  "name": "anti-social",
+  "version": "1.0.0",
+  "description": "UnaHur anti-social net - Trabajo Práctico 2",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "dev": "node --watch src/main.js"
+  },
+  "dependencies": {
+    "dotenv": "18.0.9",
+    "express": "^4.19.2",
+    "joi": "^18.3.1",
+    "mongoose": "^9.11.4",
+    "multer": "^2.5.0",
+    "node-cache": "^5.1.2",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0",
+    "cors": "^2.8.5"
+  }
+}

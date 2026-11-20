@@ -23,8 +23,19 @@ const STORAGE_KEY = 'unahur_antisocial_user';
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
+      // Limpiamos cualquier dato de prueba viejo que haya quedado en localStorage
+      localStorage.removeItem('unahur_mock_posts');
+      localStorage.removeItem('unahur_mock_users');
+      localStorage.removeItem('unahur_mock_tags');
+
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? (JSON.parse(saved) as User) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved) as User;
+      if (!parsed.id || parsed.id.startsWith('mock_')) {
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }
@@ -42,6 +53,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
+  // Verifica al iniciar que el usuario guardado en localStorage exista en el BackEnd actual
+  useEffect(() => {
+    if (!user) return;
+    getUsers()
+      .then((backendUsers) => {
+        const matchById = backendUsers.find((u) => u.id === user.id);
+        if (matchById) return;
+
+        const matchByNick = backendUsers.find(
+          (u) => u.nickName.toLowerCase() === user.nickName.toLowerCase()
+        );
+        if (matchByNick) {
+          setUser(matchByNick);
+        } else {
+          setUser(null);
+        }
+      })
+      .catch(() => {
+        // Si el BackEnd aún no levantó, mantenemos la sesión local hasta que conecte
+      });
+  }, []);
+
   const login = async (nickName: string, password: string): Promise<void> => {
     const cleanNick = nickName.trim();
 
@@ -54,14 +87,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Contraseña incorrecta. Recordá que la clave es "123456".');
     }
 
-    // Consulta GET /users a la API para verificar si el usuario existe
+    // Consulta GET /users a la API del BackEnd para verificar si el usuario existe
     const users = await getUsers();
     const foundUser = users.find(
       (u) => u.nickName.toLowerCase() === cleanNick.toLowerCase()
     );
 
     if (!foundUser) {
-      throw new Error(`El usuario "${cleanNick}" no existe. Podés registrarte primero.`);
+      throw new Error(`El usuario "${cleanNick}" no existe en el BackEnd. Podés registrarte primero.`);
     }
 
     setUser(foundUser);
@@ -97,4 +130,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

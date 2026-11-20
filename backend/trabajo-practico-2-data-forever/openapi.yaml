@@ -1,0 +1,810 @@
+openapi: 3.0.3
+
+info:
+  title: UnaHur Anti-Social Net
+  description: API REST de UnaHur Anti-Social Net con persistencia en MongoDB mediante Mongoose. Los identificadores son ObjectId de MongoDB (cadenas hexadecimales de 24 caracteres). Gestiona usuarios, publicaciones, comentarios, imágenes, etiquetas y seguidores.
+  version: 2.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+
+security: []
+
+paths:
+  /:
+    get:
+      operationId: verificarApi
+      summary: Verificar que la API está activa
+      responses:
+        "200":
+          description: La API está funcionando correctamente
+
+  /api/users:
+    get:
+      operationId: consultarUsuarios
+      summary: Consultar todos los usuarios registrados
+      responses:
+        "200":
+          description: Lista de usuarios obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      pattern: "^[a-fA-F0-9]{24}$"
+                      example: 6aea086c384cb6b211d0d7bf
+                    nickName:
+                      type: string
+                      example: usuarioPrueba1
+        "500":
+          description: Error interno del servidor
+
+    post:
+      operationId: crearUsuario
+      summary: Crear un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nickName
+              properties:
+                nickName:
+                  type: string
+                  minLength: 1
+                  description: No admite únicamente espacios en blanco
+                  example: usuarioPrueba1
+      responses:
+        "201":
+          description: Usuario creado correctamente
+        "400":
+          description: Datos inválidos, cuerpo ausente o nickName en blanco
+        "409":
+          description: Ya existe un usuario con ese nickName
+        "500":
+          description: Error interno del servidor
+
+  /api/users/{id}:
+    get:
+      operationId: consultarUsuarioPorId
+      summary: Consultar un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador del usuario (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Usuario obtenido correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Usuario no encontrado
+
+    put:
+      summary: Actualizar el nickName de un usuario
+      operationId: actualizarUsuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nickName
+              properties:
+                nickName:
+                  type: string
+                  minLength: 1
+                  description: No admite únicamente espacios en blanco
+      responses:
+        "200":
+          description: Usuario actualizado correctamente
+        "400":
+          description: Datos o identificador inválidos
+        "404":
+          description: Usuario no encontrado
+        "409":
+          description: NickName duplicado
+
+    patch:
+      summary: Actualizar parcialmente el nickName de un usuario
+      operationId: actualizarUsuarioParcial
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nickName
+              properties:
+                nickName:
+                  type: string
+                  minLength: 1
+      responses:
+        "200":
+          description: Usuario actualizado correctamente
+        "400":
+          description: Datos o identificador inválidos
+        "404":
+          description: Usuario no encontrado
+        "409":
+          description: NickName duplicado
+
+    delete:
+      summary: Eliminar un usuario y limpiar sus recursos asociados
+      operationId: eliminarUsuario
+      description: Elimina el usuario, sus publicaciones, comentarios, imágenes asociadas y referencias de seguimiento (followers/following).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Usuario eliminado correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Usuario no encontrado
+
+  /api/users/{id}/followers:
+    get:
+      operationId: consultarSeguidores
+      summary: Consultar los seguidores de un usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador del usuario (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      responses:
+        "200":
+          description: Lista de seguidores del usuario
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Usuario no encontrado
+
+  /api/users/{id}/follow:
+    post:
+      operationId: seguirUsuario
+      summary: Seguir a un usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador del usuario que será seguido (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - followerId
+              properties:
+                followerId:
+                  type: string
+                  pattern: "^[a-fA-F0-9]{24}$"
+                  example: 6ae92085c7c6944e2c835de9
+      responses:
+        "200":
+          description: Usuario seguido correctamente
+        "400":
+          description: El usuario no puede seguirse a sí mismo o los datos son inválidos
+        "404":
+          description: Usuario no encontrado
+
+  /api/users/{id}/unfollow:
+    post:
+      operationId: dejarDeSeguirUsuario
+      summary: Dejar de seguir a un usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador del usuario que se dejará de seguir (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - followerId
+              properties:
+                followerId:
+                  type: string
+                  pattern: "^[a-fA-F0-9]{24}$"
+                  example: 6ae92085c7c6944e2c835de9
+      responses:
+        "200":
+          description: Relación de seguimiento eliminada correctamente
+        "400":
+          description: Datos inválidos
+        "404":
+          description: Usuario no encontrado
+
+  /api/posts:
+    get:
+      operationId: consultarPublicaciones
+      summary: Consultar todas las publicaciones
+      description: Devuelve las publicaciones con sus autores, imágenes, etiquetas y comentarios visibles.
+      responses:
+        "200":
+          description: Lista de publicaciones obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        "500":
+          description: Error interno del servidor
+
+    post:
+      operationId: crearPublicacion
+      summary: Crear una publicación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+                - userId
+              properties:
+                description:
+                  type: string
+                  minLength: 1
+                  example: Mi primera publicación
+                userId:
+                  type: string
+                  pattern: "^[a-fA-F0-9]{24}$"
+                  example: 6ae91dcf1044d9000e0aa1a7
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+      responses:
+        "201":
+          description: Publicación creada correctamente
+        "400":
+          description: Datos inválidos o campos obligatorios faltantes
+        "404":
+          description: Usuario no encontrado
+
+  /api/posts/{id}:
+    get:
+      operationId: consultarPublicacionPorId
+      summary: Consultar una publicación por ID
+      description: Devuelve la publicación con su autor, imágenes, etiquetas y comentarios visibles (cuya antigüedad no supere MAX_COMMENT_AGE_MONTHS).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      responses:
+        "200":
+          description: Publicación obtenida correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Publicación no encontrada
+
+    patch:
+      operationId: actualizarPublicacion
+      summary: Actualizar la descripción de una publicación
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+              properties:
+                description:
+                  type: string
+                  minLength: 1
+                  example: Publicación actualizada mediante PATCH
+      responses:
+        "200":
+          description: Publicación actualizada correctamente
+        "400":
+          description: Datos o identificador inválidos
+        "404":
+          description: Publicación no encontrada
+
+    delete:
+      operationId: eliminarPublicacion
+      summary: Eliminar una publicación
+      description: Elimina la publicación, sus comentarios, sus imágenes y sus asociaciones con etiquetas. No elimina las etiquetas del catálogo general.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      responses:
+        "200":
+          description: Publicación eliminada correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Publicación no encontrada
+
+  /api/posts/{id}/tags:
+    post:
+      operationId: agregarEtiquetas
+      summary: Agregar etiquetas a una publicación
+      description: Asocia etiquetas existentes o nuevas a una publicación sin reemplazar las anteriores.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tags
+              properties:
+                tags:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                    minLength: 1
+                  example:
+                    - programacion
+                    - unahur
+      responses:
+        "200":
+          description: Etiquetas agregadas correctamente
+        "400":
+          description: Datos o identificador inválidos
+        "404":
+          description: Publicación no encontrada
+
+  /api/posts/{id}/tags/{tagId}:
+    delete:
+      operationId: quitarEtiqueta
+      summary: Quitar una etiqueta de una publicación
+      description: Elimina solamente la asociación entre la publicación y la etiqueta (PostTag). No elimina la etiqueta del catálogo general (Tag).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+        - name: tagId
+          in: path
+          required: true
+          description: Identificador de la etiqueta (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea2921156f57c1a04fcf54
+      responses:
+        "200":
+          description: Etiqueta quitada de la publicación correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Publicación o etiqueta no encontrada, o etiqueta no asociada a la publicación
+
+  /api/posts/{id}/comments:
+    get:
+      operationId: consultarComentariosDePublicacion
+      summary: Consultar todos los comentarios registrados en una publicación
+      description: Devuelve todos los comentarios almacenados para la publicación (incluyendo su propiedad virtual visible).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Lista de comentarios de la publicación
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Publicación no encontrada
+
+    post:
+      operationId: agregarComentario
+      summary: Agregar un comentario a una publicación
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+                - userId
+              properties:
+                content:
+                  type: string
+                  minLength: 1
+                  example: Muy interesante esta publicación
+                userId:
+                  type: string
+                  pattern: "^[a-fA-F0-9]{24}$"
+                  example: 6ae91dcf1044d9000e0aa1a7
+                date:
+                  type: string
+                  format: date-time
+                  description: Fecha opcional del comentario (útil para pruebas de antigüedad)
+      responses:
+        "201":
+          description: Comentario creado correctamente
+        "400":
+          description: Datos inválidos o identificador incorrecto
+        "404":
+          description: Publicación o usuario no encontrado
+
+  /api/posts/{id}/comments/{commentId}:
+    get:
+      operationId: consultarComentarioPorId
+      summary: Consultar un comentario específico de una publicación
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Comentario obtenido correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Publicación o comentario no encontrado
+
+    patch:
+      summary: Editar un comentario
+      operationId: editarComentario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  minLength: 1
+                  description: No admite solamente espacios en blanco
+      responses:
+        "200":
+          description: Comentario actualizado correctamente
+        "400":
+          description: Contenido o identificador inválido
+        "404":
+          description: Publicación o comentario no encontrado
+
+    delete:
+      operationId: eliminarComentario
+      summary: Eliminar un comentario de una publicación
+      description: Elimina un comentario solamente si pertenece a la publicación indicada.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+        - name: commentId
+          in: path
+          required: true
+          description: Identificador del comentario (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea2a9f9cca67e93e502275
+      responses:
+        "200":
+          description: Comentario eliminado correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Publicación o comentario no encontrado
+
+  /api/posts/{id}/images:
+    post:
+      operationId: subirImagen
+      summary: Subir una imagen a una publicación
+      description: Guarda una imagen JPG, PNG, GIF o WEBP en el servidor (validando tanto MIME type como contenido real por firma binaria) y registra su ubicación en la base de datos. El tamaño máximo permitido es de 5 MB.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Imagen subida correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: "^[a-fA-F0-9]{24}$"
+                    example: 6aea0ea8384cb6b211d0d7c4
+                  url:
+                    type: string
+                    example: /uploads/imagen.jpg
+                  postId:
+                    type: string
+                    pattern: "^[a-fA-F0-9]{24}$"
+                    example: 6aea086c384cb6b211d0d7bf
+        "400":
+          description: Falta la imagen, el formato o contenido real no está permitido, supera los 5 MB o el identificador es inválido
+        "404":
+          description: Publicación no encontrada
+
+  /api/posts/{id}/images/{imageId}:
+    delete:
+      operationId: eliminarImagen
+      summary: Eliminar una imagen de una publicación
+      description: Elimina el registro de la imagen y, si está almacenada localmente, también elimina el archivo del servidor.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la publicación (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea086c384cb6b211d0d7bf
+        - name: imageId
+          in: path
+          required: true
+          description: Identificador de la imagen (ObjectId de 24 caracteres hexadecimales)
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+            example: 6aea0ea8384cb6b211d0d7c4
+      responses:
+        "200":
+          description: Imagen eliminada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Imagen eliminada correctamente.
+        "400":
+          description: Identificador de publicación o imagen inválido
+        "404":
+          description: Publicación o imagen no encontrada
+
+  /api/tags:
+    get:
+      summary: Listar todas las etiquetas del catálogo
+      operationId: listarEtiquetas
+      responses:
+        "200":
+          description: Lista de etiquetas obtenida correctamente
+
+    post:
+      summary: Crear una etiqueta en el catálogo
+      operationId: crearEtiqueta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  description: No admite solamente espacios en blanco
+      responses:
+        "201":
+          description: Etiqueta creada correctamente
+        "400":
+          description: Nombre inválido o vacío
+        "409":
+          description: La etiqueta ya existe
+
+  /api/tags/{id}:
+    get:
+      summary: Consultar una etiqueta del catálogo por ID
+      operationId: consultarEtiquetaPorId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Etiqueta obtenida correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Etiqueta no encontrada
+
+    put:
+      summary: Renombrar una etiqueta del catálogo
+      operationId: actualizarEtiqueta
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+      responses:
+        "200":
+          description: Etiqueta actualizada correctamente
+        "400":
+          description: Datos o identificador inválidos
+        "404":
+          description: Etiqueta no encontrada
+        "409":
+          description: El nuevo nombre ya pertenece a otra etiqueta
+
+    delete:
+      summary: Eliminar una etiqueta del catálogo general
+      operationId: eliminarEtiqueta
+      description: Elimina la etiqueta del catálogo Tag y todas sus asociaciones en PostTag, sin eliminar las publicaciones.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Etiqueta eliminada correctamente
+        "400":
+          description: Identificador inválido
+        "404":
+          description: Etiqueta no encontrada

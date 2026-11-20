@@ -1,0 +1,2618 @@
+{
+  "info": {
+    "_postman_id": "33050af5-0dca-44d2-9eb9-56d9b747fe7a",
+    "name": "TP2 - MongoDB - Pruebas finales",
+    "description": "Colección completa de pruebas para UnaHur Anti-Social Net (TP2 - MongoDB y Mongoose). Diseñada para ejecutarse partiendo de una base de datos en blanco y utilizando archivos relativos del repositorio en postman/files/.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57814869"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "nickNameCreado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "followerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "postId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "postIdComentario",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "commentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "comentarioAntiguoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "comentarioIdParaEliminar",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "imageIdParaEliminar",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "postIdParaEliminar",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tagIdParaQuitar",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tagCatalogoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tagCatalogoNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userIdParaEliminar",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Verificar API activa",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La API debe estar activa y responder 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al crear un usuario\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Debe devolver id y nickName\", function () {",
+              "    const usuario = pm.response.json();",
+              "    pm.expect(usuario).to.have.property(\"id\");",
+              "    pm.expect(usuario).to.have.property(\"nickName\");",
+              "    pm.expect(usuario).to.not.have.property(\"_id\");",
+              "    pm.collectionVariables.set(\"userId\", usuario.id);",
+              "    pm.collectionVariables.set(\"nickNameCreado\", usuario.nickName);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nickName\": \"usuarioPrueba{{$timestamp}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear segundo usuario (seguidor) - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al crear el usuario seguidor\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const usuario = pm.response.json();",
+              "    pm.collectionVariables.set(\"followerId\", usuario.id);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nickName\": \"usuarioSeguidor{{$timestamp}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - NickName duplicado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 409 si el nickName ya existe\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nickName\": \"{{nickNameCreado}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - Error: falta nickName",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si falta nickName\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario - Error: nickName en blanco",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si el nickName solo contiene espacios\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nickName\": \"    \"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar usuario por ID - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al consultar usuario por ID\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"El usuario devuelto coincide con el ID solicitado\", function () {",
+              "    const usuario = pm.response.json();",
+              "    pm.expect(usuario.id).to.equal(pm.collectionVariables.get(\"userId\"));",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar usuario - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al actualizar el usuario\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"El nickName fue actualizado correctamente\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.id).to.equal(pm.collectionVariables.get(\"userId\"));",
+              "    pm.expect(respuesta.nickName).to.include(\"usuarioEditado\");",
+              "    pm.collectionVariables.set(\"nickNameCreado\", respuesta.nickName);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nickName\": \"usuarioEditado{{$timestamp}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Seguir usuario - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al seguir a un usuario\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}/follow",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}",
+            "follow"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"followerId\": \"{{followerId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Seguir usuario - Error sin followerId",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si falta followerId\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}/follow",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}",
+            "follow"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Seguir usuario - Error: usuario inexistente.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si el usuario no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/000000000000000000000999/follow",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "000000000000000000000999",
+            "follow"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"followerId\": \"{{followerId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Seguir usuario - Error: seguirse a sí mismo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si un usuario intenta seguirse a sí mismo\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}/follow",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}",
+            "follow"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"followerId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar seguidores - Caso exitoso.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al consultar seguidores\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Debe devolver una lista de seguidores\", function () {",
+              "    const seguidores = pm.response.json();",
+              "    pm.expect(seguidores).to.be.an(\"array\");",
+              "    pm.expect(seguidores.length).to.be.above(0);",
+              "});",
+              "pm.test(\"Cada seguidor debe tener id y nickName\", function () {",
+              "    const seguidores = pm.response.json();",
+              "    seguidores.forEach(function (usuario) {",
+              "        pm.expect(usuario).to.have.property(\"id\");",
+              "        pm.expect(usuario).to.have.property(\"nickName\");",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}/followers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}",
+            "followers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Dejar de seguir usuario - Caso Exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al dejar de seguir a un usuario\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Debe confirmar que dejó de seguir al usuario\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.include(\"dejó de seguir\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userId}}/unfollow",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userId}}",
+            "unfollow"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"followerId\": \"{{followerId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Dejar de seguir - Usuario inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si el usuario no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/000000000000000000000999/unfollow",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "000000000000000000000999",
+            "unfollow"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"followerId\": \"{{followerId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear publicación - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al crear una publicación\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const respuesta = pm.response.json();",
+              "    pm.collectionVariables.set(\"postId\", respuesta.postId);",
+              "    pm.collectionVariables.set(\"postIdComentario\", respuesta.postId);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Mi primera publicación en UnaHur Anti-Social Net\",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar publicaciones - Caso exitoso.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al consultar publicaciones\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Debe devolver una lista de publicaciones\", function () {",
+              "    const posts = pm.response.json();",
+              "    pm.expect(posts).to.be.an(\"array\");",
+              "    pm.expect(posts.length).to.be.above(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear publicación - Error: falta descripción",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si falta la descripción\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear publicación - Error: descripción en blanco",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si la descripción solo tiene espacios en blanco\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"     \",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear publicación - Error: falta userId.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si falta userId\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Publicación sin usuario\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar comentario - Caso exitoso.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al agregar un comentario\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const comentario = pm.response.json();",
+              "    pm.collectionVariables.set(\"commentId\", comentario.id);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Primer comentario de prueba\",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Editar comentario - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al editar el comentario\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Debe devolver el contenido actualizado\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.content).to.equal(\"Comentario actualizado correctamente en TP2\");",
+              "});",
+              "pm.test(\"Debe conservar el ID del comentario\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.id).to.equal(pm.collectionVariables.get(\"commentId\"));",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments/{{commentId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments",
+            "{{commentId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Comentario actualizado correctamente en TP2\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Editar comentario - Rechazar espacios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 al editar con espacios en blanco\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments/{{commentId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments",
+            "{{commentId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"     \"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar comentario antiguo (mayor a MAX_COMMENT_AGE_MONTHS)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al registrar el comentario antiguo en la base\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"El atributo virtual visible se calcula como false para el comentario antiguo\", function () {",
+              "    const comentario = pm.response.json();",
+              "    pm.expect(comentario.visible).to.equal(false);",
+              "    pm.collectionVariables.set(\"comentarioAntiguoId\", comentario.id);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Comentario antiguo que permanece en la base pero no se muestra en el post\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"2020-01-01T00:00:00.000Z\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar comentarios de publicación (incluye antiguos en base)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al consultar los comentarios de la publicación\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"El comentario antiguo sigue guardado en la colección Comment\", function () {",
+              "    const comentarios = pm.response.json();",
+              "    const antiguoId = pm.collectionVariables.get(\"comentarioAntiguoId\");",
+              "    const encontrado = comentarios.find(c => c.id === antiguoId);",
+              "    pm.expect(encontrado).to.not.be.undefined;",
+              "    pm.expect(encontrado.visible).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar comentario - Error: publicación inexistente.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si la publicación no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/000000000000000000000000/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "000000000000000000000000",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Comentario de prueba\",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar comentario - Error: falta contenido.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si falta el contenido del comentario\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar comentario - Error: contenido en blanco",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si el contenido solo tiene espacios en blanco\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"    \",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar imagen a publicación - Caso exitoso.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al subir una imagen\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Debe devolver la URL de la imagen\", function () {",
+              "    const image = pm.response.json();",
+              "    pm.expect(image.url).to.be.a(\"string\");",
+              "    pm.expect(image.url).to.include(\"/uploads/\");",
+              "    pm.expect(image.postId).to.equal(pm.collectionVariables.get(\"postIdComentario\"));",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const image = pm.response.json();",
+              "    if (image.id) {",
+              "        pm.collectionVariables.set(\"imageIdParaEliminar\", image.id);",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "postman/files/imagen-valida.jpg"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar imagen de publicación - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al eliminar la imagen\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Debe confirmar que la imagen fue eliminada\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.equal(\"Imagen eliminada correctamente.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images/{{imageIdParaEliminar}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images",
+            "{{imageIdParaEliminar}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar imagen inexistente - Caso de error.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si la imagen no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Debe informar que la imagen no fue encontrada\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"La imagen no existe en esta publicación.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images/000000000000000000000000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images",
+            "000000000000000000000000"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Subir imagen sin archivo - Caso de error.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si no se adjunta una imagen\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Debe informar que falta el archivo\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"Debe adjuntar una imagen.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "value": "",
+              "type": "file"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Subir imagen - ID de publicación inválido.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si el ID de la publicación es inválido\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Debe informar que el ID no es válido\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"El identificador de la publicación no es válido.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/abc/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "abc",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Subir imagen - Publicación inexistente.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si la publicación no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Debe informar que la publicación no fue encontrada\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"La publicación no existe.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/000000000000000000000000/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "000000000000000000000000",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Subir archivo no permitido - Caso de error.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si el archivo no es una imagen permitida\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Debe informar los formatos de imagen permitidos\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"Solo se permiten imágenes JPG, PNG, GIF o WEBP.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "postman/files/archivo-invalido.txt"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Subir archivo con tipo real inválido (extensión .jpg falsa) - Caso de error.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si el contenido real del archivo no es una imagen\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Debe informar los formatos de imagen permitidos\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"Solo se permiten imágenes JPG, PNG, GIF o WEBP.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "postman/files/imagen-falsa.jpg"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Subir imagen mayor a 5 MB - Caso de error.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si la imagen supera los 5 MB\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Debe informar que la imagen supera el tamaño permitido\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"La imagen no debe superar los 5 MB.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "postman/files/imagen-mayor-5mb.jpg"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/images",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "images"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear publicación - Usuario inexistente.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si el usuario no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Debe informar que el usuario no fue encontrado\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"El usuario indicado no existe.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Publicación con usuario inexistente\",\n  \"userId\": \"000000000000000000000000\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar comentario - Usuario inexistente.",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404 si el usuario no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Debe informar que el usuario no fue encontrado\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"El usuario indicado no existe.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Comentario de prueba\",\n  \"userId\": \"000000000000000000000000\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar usuarios - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al consultar usuarios\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Debe devolver una lista de usuarios\", function () {",
+              "    const usuarios = pm.response.json();",
+              "    pm.expect(usuarios).to.be.an(\"array\");",
+              "});",
+              "pm.test(\"Cada usuario debe tener id y nickName\", function () {",
+              "    const usuarios = pm.response.json();",
+              "    usuarios.forEach(function (usuario) {",
+              "        pm.expect(usuario).to.have.property(\"id\");",
+              "        pm.expect(usuario).to.have.property(\"nickName\");",
+              "        pm.expect(usuario).to.not.have.property(\"_id\");",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar etiquetas - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La respuesta tiene estado 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Las etiquetas se agregaron correctamente\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.equal(\"Etiquetas agregadas correctamente\");",
+              "});",
+              "pm.test(\"La respuesta incluye las etiquetas enviadas\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.tags).to.be.an(\"array\");",
+              "    const nombres = respuesta.tags.map(tag => tag.name);",
+              "    pm.expect(nombres).to.include(\"programacion\");",
+              "    pm.expect(nombres).to.include(\"unahur\");",
+              "    if (respuesta.tags.length > 0) {",
+              "        pm.collectionVariables.set(\"tagIdParaQuitar\", respuesta.tags[0].id);",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/tags",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "tags"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tags\": [\"programacion\", \"unahur\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar publicación por ID - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La respuesta tiene estado 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"La publicación consultada tiene el ID correcto\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.id).to.eql(pm.collectionVariables.get(\"postIdComentario\"));",
+              "});",
+              "pm.test(\"La publicación contiene sus relaciones y filtra comentarios antiguos\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta).to.have.property(\"user\");",
+              "    pm.expect(respuesta).to.have.property(\"images\");",
+              "    pm.expect(respuesta).to.have.property(\"tags\");",
+              "    pm.expect(respuesta).to.have.property(\"comments\");",
+              "    pm.expect(respuesta.images).to.be.an(\"array\");",
+              "    pm.expect(respuesta.tags).to.be.an(\"array\");",
+              "    pm.expect(respuesta.comments).to.be.an(\"array\");",
+              "    const commentIds = respuesta.comments.map(c => c.id);",
+              "    pm.expect(commentIds).to.include(pm.collectionVariables.get(\"commentId\"));",
+              "    pm.expect(commentIds).to.not.include(pm.collectionVariables.get(\"comentarioAntiguoId\"));",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Quitar etiqueta - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La respuesta tiene estado 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"La etiqueta se quitó correctamente\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.eql(\"Etiqueta quitada de la publicación correctamente\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/tags/{{tagIdParaQuitar}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "tags",
+            "{{tagIdParaQuitar}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar publicación - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La respuesta tiene estado 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"La publicación se actualizó correctamente\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.equal(\"Publicación actualizada correctamente\");",
+              "});",
+              "pm.test(\"La descripción fue actualizada\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.post.description).to.equal(\"Publicación actualizada correctamente en MongoDB\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Publicación actualizada correctamente en MongoDB\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar publicación - ID inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Devuelve 404 porque la publicación no existe\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Informa que la publicación no fue encontrada\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.error).to.equal(\"La publicación no existe.\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/000000000000000000000000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "000000000000000000000000"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear publicación para prueba de eliminación",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La publicación se creó correctamente\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"La respuesta contiene el ID de la nueva publicación\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.postId).to.be.a(\"string\");",
+              "    pm.expect(respuesta.postId).to.match(/^[a-fA-F0-9]{24}$/);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const respuesta = pm.response.json();",
+              "    pm.collectionVariables.set(\"postIdParaEliminar\", respuesta.postId);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Publicación temporal para probar eliminación\",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar publicación - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"La publicación se eliminó correctamente\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"La respuesta confirma la eliminación\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.eql(\"Publicación eliminada correctamente\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdParaEliminar}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdParaEliminar}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear comentario para prueba de eliminación",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"El comentario se creó correctamente\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"El comentario pertenece a la publicación correcta\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.postId).to.equal(pm.collectionVariables.get(\"postIdComentario\"));",
+              "});",
+              "pm.test(\"La respuesta contiene un ID válido del comentario\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.id).to.be.a(\"string\");",
+              "    pm.expect(respuesta.id).to.match(/^[a-fA-F0-9]{24}$/);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const respuesta = pm.response.json();",
+              "    pm.collectionVariables.set(\"comentarioIdParaEliminar\", respuesta.id);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Comentario temporal para probar eliminación\",\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar comentario - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"El comentario se eliminó correctamente\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"La respuesta confirma la eliminación\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.eql(\"Comentario eliminado correctamente\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/posts/{{postIdComentario}}/comments/{{comentarioIdParaEliminar}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "posts",
+            "{{postIdComentario}}",
+            "comments",
+            "{{comentarioIdParaEliminar}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear etiqueta en catálogo - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al crear una etiqueta en el catálogo\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const tag = pm.response.json();",
+              "    pm.collectionVariables.set(\"tagCatalogoId\", tag.id);",
+              "    pm.collectionVariables.set(\"tagCatalogoNombre\", tag.name);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"etiquetacatalogo{{$timestamp}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear etiqueta duplicada en catálogo - Error 409",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 409 si la etiqueta ya existe en el catálogo\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{tagCatalogoNombre}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear etiqueta - Error: nombre en blanco",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400 si el nombre de la etiqueta solo tiene espacios\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"   \"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar catálogo de etiquetas - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al listar el catálogo de etiquetas\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Devuelve un arreglo de etiquetas con id y name\", function () {",
+              "    const tags = pm.response.json();",
+              "    pm.expect(tags).to.be.an(\"array\");",
+              "    pm.expect(tags.length).to.be.above(0);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar etiqueta por ID - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al consultar etiqueta por ID\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Devuelve la etiqueta solicitada\", function () {",
+              "    const tag = pm.response.json();",
+              "    pm.expect(tag.id).to.equal(pm.collectionVariables.get(\"tagCatalogoId\"));",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags/{{tagCatalogoId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags",
+            "{{tagCatalogoId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Renombrar etiqueta en catálogo - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al renombrar la etiqueta\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"El nombre de la etiqueta fue actualizado\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.name).to.include(\"etiquetarenombrada\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags/{{tagCatalogoId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags",
+            "{{tagCatalogoId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"etiquetarenombrada{{$timestamp}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar etiqueta del catálogo - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al eliminar la etiqueta del catálogo\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Confirma la eliminación de la etiqueta\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.equal(\"Etiqueta eliminada correctamente\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tags/{{tagCatalogoId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tags",
+            "{{tagCatalogoId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear usuario para prueba de eliminación",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 201 al crear el usuario temporal\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    const usuario = pm.response.json();",
+              "    pm.collectionVariables.set(\"userIdParaEliminar\", usuario.id);",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nickName\": \"usuarioParaEliminar{{$timestamp}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar usuario - Caso exitoso",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 al eliminar el usuario\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Confirma la eliminación del usuario\", function () {",
+              "    const respuesta = pm.response.json();",
+              "    pm.expect(respuesta.message).to.equal(\"Usuario eliminado correctamente\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{{userIdParaEliminar}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{{userIdParaEliminar}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
