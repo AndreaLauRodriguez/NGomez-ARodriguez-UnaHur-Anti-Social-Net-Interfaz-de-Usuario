@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const { Post, PostImage, PostTag, Comment, Tag, User } = require("../models");
 const postCache = require("../postCache");
 const fs = require("fs/promises");
@@ -61,6 +62,28 @@ const formatPost = async (post) => {
 
 const getPosts = async (req, res, next) => {
   try {
+    const { userId } = req.query;
+
+    if (userId) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(200).json([]);
+      }
+
+      const cacheKey = `posts:user:${userId}`;
+      const cachedUserPosts = postCache.get(cacheKey);
+
+      if (cachedUserPosts !== undefined) {
+        return res.status(200).json(cachedUserPosts);
+      }
+
+      const posts = await Post.find({ userId }).sort({ date: -1 });
+      const formattedPosts = await Promise.all(posts.map(formatPost));
+
+      postCache.set(cacheKey, formattedPosts);
+
+      return res.status(200).json(formattedPosts);
+    }
+
     const cachedPosts = postCache.get("posts:all");
 
     if (cachedPosts !== undefined) {

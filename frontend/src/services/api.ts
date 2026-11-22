@@ -139,6 +139,18 @@ export async function getUsers(): Promise<User[]> {
     : [];
 }
 
+export async function getUserById(userId: string): Promise<User> {
+  const response = await fetchApi(`/users/${encodeURIComponent(userId)}`);
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, 'No se encontró el usuario solicitado'));
+  }
+  const u = await response.json();
+  return {
+    id: String(u.id ?? u._id ?? userId),
+    nickName: String(u.nickName ?? 'usuario'),
+  };
+}
+
 export async function createUser(nickName: string): Promise<User> {
   const response = await fetchApi('/users', {
     method: 'POST',

@@ -12,8 +12,8 @@ export const Footer = () => {
             <strong className="text-light">UnaHur Anti-Social Net</strong> — Conectando desde la distancia.
           </span>
         </div>
-        <div>
-          Construcción de Interfaces de Usuario · UNAHUR
+        <div className="text-center text-md-end">
+          <strong className="text-light">Andrea Rodriguez - Norma Gomez</strong> · Construcción de Interfaces de Usuario · UNAHUR
         </div>
       </div>
     </footer>

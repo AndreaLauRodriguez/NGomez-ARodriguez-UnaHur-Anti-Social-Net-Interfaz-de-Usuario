@@ -1,8 +1,10 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -11,7 +13,11 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary border-opacity-25 sticky-top shadow-sm">
+    <nav
+      className={`navbar navbar-expand-lg ${
+        isDark ? 'navbar-dark' : 'navbar-light'
+      } bg-dark border-bottom border-secondary border-opacity-25 sticky-top shadow-sm`}
+    >
       <div className="container">
         <Link className="navbar-brand fw-bold d-flex align-items-center gap-2" to="/">
           <img
@@ -24,19 +30,32 @@ export const Navbar = () => {
           </span>
         </Link>
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNavbar"
-          aria-controls="mainNavbar"
-          aria-expanded="false"
-          aria-label="Alternar navegación"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+        <div className="d-flex align-items-center gap-2 order-lg-3 ms-auto ms-lg-3">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="btn btn-sm theme-toggle-btn rounded-pill d-inline-flex align-items-center gap-1 px-3"
+            aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          >
+            <i className={`bi ${isDark ? 'bi-sun-fill' : 'bi-moon-stars-fill'}`}></i>
+            <span className="d-none d-sm-inline">{isDark ? 'Claro' : 'Oscuro'}</span>
+          </button>
 
-        <div className="collapse navbar-collapse" id="mainNavbar">
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Alternar navegación"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
+        <div className="collapse navbar-collapse order-lg-2" id="mainNavbar">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <NavLink

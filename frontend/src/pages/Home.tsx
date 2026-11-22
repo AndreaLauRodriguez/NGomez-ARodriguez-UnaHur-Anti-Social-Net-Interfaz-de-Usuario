@@ -14,24 +14,15 @@ const SLOGANS = [
 const CAROUSEL_SLIDES = [
   {
     image: '/img/imagen1.jpg',
-    badge: 'COMUNIDAD UNAHUR',
-    title: 'UnaHur Anti-Social Net',
-    subtitle:
-      'Conectando en la desconexión: expresá tus ideas, código y debates sin algoritmos intrusivos.',
+    alt: 'UnaHur Anti-Social Net - Imagen 1',
   },
   {
-    image: '/img/imagen2.png',
-    badge: 'ESPACIO DIGITAL',
-    title: 'Creado por y para Estudiantes',
-    subtitle:
-      'Un punto de encuentro minimalista donde lo importante es el contenido de lo que publicás.',
+    image: '/img/imagen2.jpg',
+    alt: 'UnaHur Anti-Social Net - Imagen 2',
   },
   {
     image: '/img/imagen3.jpg',
-    badge: 'CONVERSACIÓN REAL',
-    title: 'Publicaciones y Comentarios Efímeros',
-    subtitle:
-      'Compartí imágenes, etiquetá tus posteos y debatí con comentarios visibles.',
+    alt: 'UnaHur Anti-Social Net - Imagen 3',
   },
 ];
 
@@ -149,18 +140,9 @@ export const Home = () => {
               >
                 <img
                   src={slide.image}
-                  alt={slide.title}
+                  alt={slide.alt}
                   className="d-block w-100 carousel-hero-img"
                 />
-                <div className="carousel-caption carousel-caption-bar text-start">
-                  <span className="badge bg-info text-dark fw-bold mb-2 px-3 py-1 rounded-pill">
-                    <i className="bi bi-images me-1"></i> {slide.badge}
-                  </span>
-                  <h2 className="fw-bold text-white mb-1">{slide.title}</h2>
-                  <p className="text-light opacity-75 mb-0 small d-none d-sm-block">
-                    {slide.subtitle}
-                  </p>
-                </div>
               </div>
             ))}
           </div>
@@ -197,47 +179,35 @@ export const Home = () => {
               </p>
             </div>
 
-            <div className="d-flex flex-wrap gap-2">
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    to="/create-post"
-                    className="btn btn-info text-dark fw-bold btn-sm px-3"
-                  >
-                    <i className="bi bi-plus-lg me-1"></i>
-                    Crear Publicación
-                  </Link>
-                  <Link to="/profile" className="btn btn-outline-light btn-sm px-3">
-                    <i className="bi bi-person-circle me-1"></i>
-                    @{user?.nickName}
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="btn btn-info text-dark fw-bold btn-sm px-3"
-                  >
-                    <i className="bi bi-box-arrow-in-right me-1"></i>
-                    Iniciar Sesión
-                  </Link>
-                  <Link to="/register" className="btn btn-outline-light btn-sm px-3">
-                    <i className="bi bi-person-plus me-1"></i>
-                    Crear Cuenta
-                  </Link>
-                </>
-              )}
+            {(isAuthenticated || posts.length > 0) && (
+              <div className="d-flex flex-wrap gap-2">
+                {isAuthenticated && (
+                  <>
+                    <Link
+                      to="/create-post"
+                      className="btn btn-info text-dark fw-bold btn-sm px-3"
+                    >
+                      <i className="bi bi-plus-lg me-1"></i>
+                      Crear Publicación
+                    </Link>
+                    <Link to="/profile" className="btn btn-outline-light btn-sm px-3">
+                      <i className="bi bi-person-circle me-1"></i>
+                      @{user?.nickName}
+                    </Link>
+                  </>
+                )}
 
-              {posts.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handlePickRandomPost}
-                  className="btn btn-outline-info btn-sm px-3"
-                >
-                  <i className="bi bi-shuffle me-1"></i> Post Aleatorio
-                </button>
-              )}
-            </div>
+                {posts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handlePickRandomPost}
+                    className="btn btn-outline-info btn-sm px-3"
+                  >
+                    <i className="bi bi-shuffle me-1"></i> Post Aleatorio
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -258,7 +228,19 @@ export const Home = () => {
           </div>
           <p className="mb-2">{randomPost.description}</p>
           <div className="d-flex justify-content-between align-items-center small text-secondary">
-            <span>Por @{randomPost.user?.nickName || 'usuario'}</span>
+            <span>
+              Por{' '}
+              {randomPost.user?.id || randomPost.userId ? (
+                <Link
+                  to={`/profile/${randomPost.user?.id || randomPost.userId}`}
+                  className="text-info fw-semibold text-decoration-none author-profile-link"
+                >
+                  @{randomPost.user?.nickName || 'usuario'}
+                </Link>
+              ) : (
+                <>@{randomPost.user?.nickName || 'usuario'}</>
+              )}
+            </span>
             <Link to={`/post/${randomPost.id}`} className="btn btn-sm btn-info text-dark fw-semibold">
               Ir al post <i className="bi bi-arrow-right ms-1"></i>
             </Link>
@@ -422,7 +404,7 @@ export const Home = () => {
           <div className="col-12 col-lg-6">
             <div className="card bg-dark border-secondary border-opacity-25 rounded-4 overflow-hidden shadow">
               <img
-                src="/img/Gemini_Generated_Image_2yqdcx2yqdcx2yqd.jpg"
+                src="/img/imagen7.jpg"
                 alt="Logo Red Anti-Social"
                 className="w-100 object-fit-cover about-banner-img"
               />

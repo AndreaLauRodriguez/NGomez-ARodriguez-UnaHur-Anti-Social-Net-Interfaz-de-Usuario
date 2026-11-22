@@ -12,6 +12,7 @@ export const PostDetail = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   // Estado controlado para el formulario de nuevo comentario (useState)
   const [commentText, setCommentText] = useState('');
@@ -169,7 +170,16 @@ export const PostDetail = () => {
                   </div>
                   <div>
                     <h6 className="fw-bold text-info mb-0">
-                      @{post.user?.nickName || 'usuario'}
+                      {post.user?.id || post.userId ? (
+                        <Link
+                          to={`/profile/${post.user?.id || post.userId}`}
+                          className="text-info text-decoration-none author-profile-link"
+                        >
+                          @{post.user?.nickName || 'usuario'}
+                        </Link>
+                      ) : (
+                        <>@{post.user?.nickName || 'usuario'}</>
+                      )}
                     </h6>
                     {formattedPostDate && (
                       <small className="text-secondary">{formattedPostDate}</small>
@@ -232,29 +242,39 @@ export const PostDetail = () => {
               )}
 
               {/* Imágenes asociadas */}
-              {post.images && post.images.length > 0 && (
-                <div>
-                  <h6 className="text-secondary small text-uppercase fw-bold mb-3">
-                    <i className="bi bi-images me-1 text-info"></i> Imágenes ({post.images.length})
-                  </h6>
-                  <div className="row g-3">
-                    {post.images.map((img, idx) => (
-                      <div
-                        key={img.id || idx}
-                        className={post.images && post.images.length === 1 ? 'col-12' : 'col-12 col-sm-6'}
-                      >
-                        <div className="rounded-3 overflow-hidden border border-secondary border-opacity-25 bg-black">
-                          <img
-                            src={img.url}
-                            alt={`Imagen ${idx + 1} del post`}
-                            className="w-100 object-fit-cover post-detail-img"
-                          />
+              {(() => {
+                const visibleImages = (post.images ?? []).filter(
+                  (img) => Boolean(img.url) && !failedImages[img.url]
+                );
+                if (visibleImages.length === 0) return null;
+
+                return (
+                  <div>
+                    <h6 className="text-secondary small text-uppercase fw-bold mb-3">
+                      <i className="bi bi-images me-1 text-info"></i> Imágenes ({visibleImages.length})
+                    </h6>
+                    <div className="row g-3">
+                      {visibleImages.map((img, idx) => (
+                        <div
+                          key={img.id || idx}
+                          className={visibleImages.length === 1 ? 'col-12' : 'col-12 col-sm-6'}
+                        >
+                          <div className="rounded-3 overflow-hidden border border-secondary border-opacity-25 bg-black">
+                            <img
+                              src={img.url}
+                              alt={`Imagen ${idx + 1} del post`}
+                              className="w-100 object-fit-cover post-detail-img"
+                              onError={() =>
+                                setFailedImages((prev) => ({ ...prev, [img.url]: true }))
+                              }
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </article>
         </div>
@@ -366,9 +386,18 @@ export const PostDetail = () => {
                         className="p-3 rounded-3 bg-body-tertiary border border-secondary border-opacity-25"
                       >
                         <div className="d-flex justify-content-between align-items-center mb-1 small">
-                          <span className="fw-bold text-info">
-                            @{comment.user?.nickName || 'usuario'}
-                          </span>
+                          {comment.user?.id || comment.userId ? (
+                            <Link
+                              to={`/profile/${comment.user?.id || comment.userId}`}
+                              className="fw-bold text-info text-decoration-none author-profile-link"
+                            >
+                              @{comment.user?.nickName || 'usuario'}
+                            </Link>
+                          ) : (
+                            <span className="fw-bold text-info">
+                              @{comment.user?.nickName || 'usuario'}
+                            </span>
+                          )}
                           {commentDate && (
                             <span className="text-secondary">{commentDate}</span>
                           )}

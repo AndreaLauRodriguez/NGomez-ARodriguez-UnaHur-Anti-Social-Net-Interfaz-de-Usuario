@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Post } from '../types';
 
@@ -14,6 +15,8 @@ export const PostCard = ({
   selectedTag,
   onDelete,
 }: PostCardProps) => {
+  const [failedUrls, setFailedUrls] = useState<Record<string, boolean>>({});
+
   const visibleCommentsCount =
     post.comments?.filter((c) => c.visible !== false).length ?? 0;
 
@@ -25,9 +28,13 @@ export const PostCard = ({
       })
     : null;
 
-  const firstImage = post.images && post.images.length > 0 ? post.images[0].url : null;
-  const extraImagesCount =
-    post.images && post.images.length > 1 ? post.images.length - 1 : 0;
+  const validImages = (post.images ?? []).filter(
+    (img) => Boolean(img.url) && !failedUrls[img.url]
+  );
+  const firstImage = validImages.length > 0 ? validImages[0].url : null;
+  const extraImagesCount = validImages.length > 1 ? validImages.length - 1 : 0;
+
+  const authorId = post.user?.id || post.userId;
 
   return (
     <article className="card bg-dark border-secondary border-opacity-25 shadow-sm rounded-4 h-100 card-hover overflow-hidden">
@@ -37,6 +44,9 @@ export const PostCard = ({
             src={firstImage}
             alt="Imagen de la publicación"
             className="w-100 h-100 object-fit-cover"
+            onError={() =>
+              setFailedUrls((prev) => ({ ...prev, [firstImage]: true }))
+            }
           />
           {extraImagesCount > 0 && (
             <span className="position-absolute bottom-0 end-0 m-2 badge bg-dark bg-opacity-75 border border-secondary">
@@ -48,10 +58,21 @@ export const PostCard = ({
 
       <div className="card-body d-flex flex-column p-4">
         <div className="d-flex justify-content-between align-items-center mb-2 text-secondary small">
-          <span className="fw-semibold text-info">
-            <i className="bi bi-person-circle me-1"></i>
-            @{post.user?.nickName || 'usuario'}
-          </span>
+          {authorId ? (
+            <Link
+              to={`/profile/${authorId}`}
+              className="fw-semibold text-info text-decoration-none author-profile-link"
+              title={`Ver perfil de @${post.user?.nickName || 'usuario'}`}
+            >
+              <i className="bi bi-person-circle me-1"></i>
+              @{post.user?.nickName || 'usuario'}
+            </Link>
+          ) : (
+            <span className="fw-semibold text-info">
+              <i className="bi bi-person-circle me-1"></i>
+              @{post.user?.nickName || 'usuario'}
+            </span>
+          )}
           {formattedDate && (
             <span>
               <i className="bi bi-calendar3 me-1"></i>

@@ -1,34 +1,81 @@
 /* ==========================================================================
    Estilos Personales - UnaHur Anti-Social Net (Complemento de Bootstrap 5)
-   Paleta de Colores "Anti-Social":
-   - Fondo general:            #161614 (Grafito cálido profundo)
-   - Superficies / Cards:      #232320 (Gris asfalto quemado)
-   - Texto principal:          #D6D3CD (Tiza o papel hueso envejecido)
-   - Texto secundario/Bordes:  #62605B (Piedra seca)
-   - Acento funcional (único): #B35D43 (Terracota desaturado)
+   Paleta de Colores Seleccionada:
+   - Claro / Fondo base:   #F5F5F5
+   - Turquesa grisáceo:    #77ACAF
+   - Azul pizarra oscuro:  #2C353F
+   - Naranja vibrante:     #FF561C
+   Soporte completo para Modo Oscuro y Modo Claro ([data-bs-theme])
    ========================================================================== */
 
+:root {
+  --palette-light: #F5F5F5;
+  --palette-teal: #77ACAF;
+  --palette-teal-dark: #4B8386;
+  --palette-teal-rgb: 119, 172, 175;
+  --palette-dark: #2C353F;
+  --palette-dark-deep: #1E252C;
+  --palette-dark-rgb: 44, 53, 63;
+  --palette-orange: #FF561C;
+  --palette-orange-hover: #E04510;
+  --palette-orange-rgb: 255, 86, 28;
+}
+
+/* --- Modo Oscuro --- */
 :root,
 [data-bs-theme="dark"] {
-  --bg-general: #161614;
-  --bg-surface: #232320;
-  --text-primary-custom: #D6D3CD;
-  --text-secondary-border: #62605B;
-  --accent-terracotta: #B35D43;
-  --accent-terracotta-hover: #9a4d36;
-  --accent-terracotta-rgb: 179, 93, 67;
+  --bg-general: #1E252C;
+  --bg-surface: #2C353F;
+  --bg-subtle: #232B34;
+  --text-primary-custom: #F5F5F5;
+  --text-secondary-custom: #A9C5C7;
+  --border-custom: rgba(119, 172, 175, 0.35);
+  --accent-primary: #FF561C;
+  --accent-primary-hover: #E04510;
+  --accent-primary-rgb: 255, 86, 28;
+  --accent-secondary: #77ACAF;
+  --accent-secondary-rgb: 119, 172, 175;
+  --shadow-card-hover: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.45);
 
-  /* Variables nativas de Bootstrap adaptadas a la paleta */
-  --bs-body-bg: #161614;
-  --bs-body-color: #D6D3CD;
-  --bs-secondary-color: #62605B;
-  --bs-border-color: #62605B;
-  --bs-dark: #232320;
-  --bs-dark-rgb: 35, 35, 32;
-  --bs-info: #B35D43;
-  --bs-info-rgb: 179, 93, 67;
-  --bs-link-color: #B35D43;
-  --bs-link-hover-color: #D6D3CD;
+  /* Variables nativas de Bootstrap */
+  --bs-body-bg: #1E252C;
+  --bs-body-color: #F5F5F5;
+  --bs-secondary-color: #A9C5C7;
+  --bs-border-color: rgba(119, 172, 175, 0.35);
+  --bs-dark: #2C353F;
+  --bs-dark-rgb: 44, 53, 63;
+  --bs-info: #FF561C;
+  --bs-info-rgb: 255, 86, 28;
+  --bs-link-color: #FF561C;
+  --bs-link-hover-color: #77ACAF;
+}
+
+/* --- Modo Claro --- */
+[data-bs-theme="light"] {
+  --bg-general: #F5F5F5;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #EBF2F2;
+  --text-primary-custom: #2C353F;
+  --text-secondary-custom: #526470;
+  --border-custom: rgba(44, 53, 63, 0.18);
+  --accent-primary: #FF561C;
+  --accent-primary-hover: #E04510;
+  --accent-primary-rgb: 255, 86, 28;
+  --accent-secondary: #4B8386;
+  --accent-secondary-rgb: 119, 172, 175;
+  --shadow-card-hover: 0 0.5rem 1.25rem rgba(44, 53, 63, 0.14);
+
+  /* Variables nativas de Bootstrap */
+  --bs-body-bg: #F5F5F5;
+  --bs-body-color: #2C353F;
+  --bs-secondary-color: #526470;
+  --bs-border-color: rgba(44, 53, 63, 0.18);
+  --bs-dark: #FFFFFF;
+  --bs-dark-rgb: 255, 255, 255;
+  --bs-info: #FF561C;
+  --bs-info-rgb: 255, 86, 28;
+  --bs-link-color: #FF561C;
+  --bs-link-hover-color: #4B8386;
 }
 
 /* --- Base Global --- */
@@ -38,12 +85,38 @@ body {
   background-color: var(--bg-general);
   color: var(--text-primary-custom);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* --- Botón Selector de Tema (Claro / Oscuro) --- */
+.theme-toggle-btn {
+  background-color: rgba(var(--palette-teal-rgb), 0.18);
+  color: var(--text-primary-custom);
+  border: 1px solid var(--palette-teal);
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle-btn:hover,
+.theme-toggle-btn:focus {
+  background-color: var(--palette-teal);
+  border-color: var(--palette-teal);
+  color: var(--palette-dark);
+}
+
+.theme-toggle-btn i {
+  color: var(--accent-primary);
+}
+
+.theme-toggle-btn:hover i,
+.theme-toggle-btn:focus i {
+  color: var(--palette-dark);
 }
 
 /* --- Logos de la Marca (imagen4.jpg) --- */
@@ -74,10 +147,15 @@ body {
 .navbar.bg-dark,
 footer.bg-dark {
   background-color: var(--bg-surface) !important;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.navbar.bg-dark {
+  border-bottom: 2px solid rgba(var(--palette-teal-rgb), 0.45) !important;
 }
 
 .bg-body-tertiary {
-  background-color: var(--bg-general) !important;
+  background-color: var(--bg-subtle) !important;
 }
 
 .text-light,
@@ -88,12 +166,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-secondary,
 .form-text {
-  color: var(--text-secondary-border) !important;
+  color: var(--text-secondary-custom) !important;
 }
 
 .text-info,
 code.text-info {
-  color: var(--accent-terracotta) !important;
+  color: var(--accent-primary) !important;
 }
 
 .border,
@@ -103,87 +181,132 @@ code.text-info {
 .border-end,
 .border-secondary,
 hr {
-  border-color: var(--text-secondary-border) !important;
+  border-color: var(--border-custom) !important;
 }
 
 .border-info {
-  border-color: var(--accent-terracotta) !important;
+  border-color: var(--palette-teal) !important;
 }
 
-/* Botón de acento principal (Terracota #B35D43) */
-.btn-info {
-  background-color: var(--accent-terracotta) !important;
-  border-color: var(--accent-terracotta) !important;
+/* Navbar links */
+.navbar .navbar-brand,
+.navbar .nav-link {
   color: var(--text-primary-custom) !important;
+}
+
+.navbar .nav-link:hover {
+  color: var(--accent-secondary) !important;
+}
+
+.navbar .nav-link.active {
+  color: var(--accent-primary) !important;
+}
+
+/* Botón de acento principal (Naranja vibrante #FF561C) */
+.btn-info {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #FFFFFF !important;
 }
 
 .btn-info:hover,
 .btn-info:focus,
 .btn-info:active {
-  background-color: var(--accent-terracotta-hover) !important;
-  border-color: var(--accent-terracotta-hover) !important;
-  color: var(--text-primary-custom) !important;
+  background-color: var(--accent-primary-hover) !important;
+  border-color: var(--accent-primary-hover) !important;
+  color: #FFFFFF !important;
 }
 
-/* Botón de contorno con acento (Terracota #B35D43) */
+/* Botón de contorno con acento (Naranja vibrante #FF561C) */
 .btn-outline-info {
-  color: var(--accent-terracotta) !important;
-  border-color: var(--accent-terracotta) !important;
+  color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
   background-color: transparent !important;
 }
 
 .btn-outline-info:hover,
 .btn-outline-info:focus,
 .btn-outline-info:active {
-  background-color: var(--accent-terracotta) !important;
-  border-color: var(--accent-terracotta) !important;
-  color: var(--text-primary-custom) !important;
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #FFFFFF !important;
 }
 
+/* Botón de contorno adaptable (reemplaza btn-outline-light para funcionar en modo claro y oscuro) */
+.btn-outline-light {
+  color: var(--text-primary-custom) !important;
+  border-color: var(--palette-teal) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-light:hover,
+.btn-outline-light:focus,
+.btn-outline-light:active {
+  background-color: var(--palette-teal) !important;
+  border-color: var(--palette-teal) !important;
+  color: var(--palette-dark) !important;
+}
+
+/* Botón secundario con turquesa grisáceo (#77ACAF) */
 .btn-outline-secondary {
   color: var(--text-primary-custom) !important;
-  border-color: var(--text-secondary-border) !important;
+  border-color: var(--palette-teal) !important;
+  background-color: transparent !important;
 }
 
-.btn-outline-secondary:hover {
-  background-color: var(--text-secondary-border) !important;
-  border-color: var(--text-secondary-border) !important;
-  color: var(--bg-general) !important;
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+  background-color: var(--palette-teal) !important;
+  border-color: var(--palette-teal) !important;
+  color: var(--palette-dark) !important;
 }
 
-/* Badges y etiquetas con el acento terracota */
+/* Badges y etiquetas: acento naranja sólido o suave turquesa (#77ACAF) */
 .badge.bg-info:not(.bg-opacity-10) {
-  background-color: var(--accent-terracotta) !important;
-  color: var(--text-primary-custom) !important;
+  background-color: var(--accent-primary) !important;
+  color: #FFFFFF !important;
 }
 
 .bg-info.bg-opacity-10 {
-  background-color: rgba(179, 93, 67, 0.16) !important;
+  background-color: rgba(var(--palette-teal-rgb), 0.18) !important;
+  color: var(--accent-secondary) !important;
+}
+
+.badge.bg-info.bg-opacity-10,
+.badge.bg-secondary.bg-opacity-10 {
+  background-color: rgba(var(--palette-teal-rgb), 0.18) !important;
+  color: var(--accent-secondary) !important;
+  border-color: rgba(var(--palette-teal-rgb), 0.5) !important;
+}
+
+/* Botón de cierre visible en ambos modos */
+[data-bs-theme="light"] .btn-close-white {
+  filter: none !important;
 }
 
 /* Inputs y Formularios Controlados */
 .form-control {
-  background-color: var(--bg-general) !important;
+  background-color: var(--bg-subtle) !important;
   color: var(--text-primary-custom) !important;
-  border-color: var(--text-secondary-border) !important;
+  border-color: var(--border-custom) !important;
 }
 
 .form-control::placeholder {
-  color: var(--text-secondary-border) !important;
-  opacity: 0.85;
+  color: var(--text-secondary-custom) !important;
+  opacity: 0.75;
 }
 
 .form-control:focus {
-  background-color: var(--bg-general) !important;
+  background-color: var(--bg-surface) !important;
   color: var(--text-primary-custom) !important;
-  border-color: var(--accent-terracotta) !important;
-  box-shadow: 0 0 0 0.2rem rgba(179, 93, 67, 0.25) !important;
+  border-color: var(--palette-teal) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--palette-teal-rgb), 0.3) !important;
 }
 
 .input-group-text {
-  background-color: var(--bg-general) !important;
-  color: var(--accent-terracotta) !important;
-  border-color: var(--text-secondary-border) !important;
+  background-color: var(--bg-subtle) !important;
+  color: var(--accent-secondary) !important;
+  border-color: var(--border-custom) !important;
 }
 
 /* --- Carrusel de Inicio (Home) --- */
@@ -191,7 +314,7 @@ hr {
   position: relative;
   border-radius: 1rem;
   overflow: hidden;
-  background-color: var(--bg-surface);
+  background-color: var(--palette-dark);
 }
 
 .carousel-hero-img {
@@ -203,8 +326,8 @@ hr {
 .carousel-caption-bar {
   background: linear-gradient(
     0deg,
-    rgba(22, 22, 20, 0.96) 0%,
-    rgba(22, 22, 20, 0.78) 65%,
+    rgba(44, 53, 63, 0.94) 0%,
+    rgba(44, 53, 63, 0.76) 65%,
     transparent 100%
   );
   left: 0;
@@ -213,25 +336,37 @@ hr {
   padding: 2.5rem 3rem 2rem;
 }
 
+/* El texto sobre el gradiente oscuro del carrusel se mantiene siempre claro */
+.carousel-caption-bar h2,
+.carousel-caption-bar p {
+  color: #F5F5F5 !important;
+}
+
 .carousel-arrow-btn {
   width: 46px;
   height: 46px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(22, 22, 20, 0.82);
-  border: 1px solid var(--accent-terracotta);
+  background-color: rgba(44, 53, 63, 0.85);
+  border: 1px solid var(--palette-teal);
   border-radius: 50%;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .carousel-arrow-btn:hover {
-  background-color: var(--accent-terracotta);
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
   opacity: 1;
+}
+
+.carousel-arrow-btn .carousel-control-prev-icon,
+.carousel-arrow-btn .carousel-control-next-icon {
+  filter: none !important;
 }
 
 .carousel-indicators [data-bs-target],
 .carousel-indicators button {
-  background-color: var(--accent-terracotta) !important;
+  background-color: var(--accent-primary) !important;
 }
 
 .about-banner-img {
@@ -245,13 +380,13 @@ hr {
 
 .card-hover:hover {
   transform: translateY(-3px);
-  border-color: var(--accent-terracotta) !important;
-  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.55) !important;
+  border-color: var(--palette-teal) !important;
+  box-shadow: var(--shadow-card-hover) !important;
 }
 
 .post-card-img-container {
   height: 210px;
-  background-color: var(--bg-general) !important;
+  background-color: var(--bg-subtle) !important;
 }
 
 .text-preline {
@@ -266,6 +401,11 @@ hr {
   cursor: default;
 }
 
+.author-profile-link:hover {
+  text-decoration: underline !important;
+  color: var(--accent-secondary) !important;
+}
+
 /* --- Detalle de Publicación (PostDetail) --- */
 .author-avatar-sm {
   width: 42px;
@@ -277,17 +417,31 @@ hr {
 }
 
 /* --- Perfil de Usuario (Profile) --- */
-.profile-header-bg {
+[data-bs-theme="dark"] .profile-header-bg {
   background: linear-gradient(
     135deg,
-    rgba(179, 93, 67, 0.18) 0%,
-    rgba(35, 35, 32, 0.96) 100%
+    rgba(var(--palette-teal-rgb), 0.22) 0%,
+    rgba(var(--palette-dark-rgb), 0.98) 100%
   );
+}
+
+[data-bs-theme="light"] .profile-header-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--palette-teal-rgb), 0.28) 0%,
+    rgba(245, 245, 245, 0.96) 100%
+  );
+}
+
+[data-bs-theme="light"] .profile-header-bg .bg-black {
+  background-color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .profile-avatar-lg {
   width: 76px;
   height: 76px;
+  background-color: var(--accent-primary) !important;
+  color: #FFFFFF !important;
 }
 
 /* --- Crear Publicación (CreatePost) --- */
