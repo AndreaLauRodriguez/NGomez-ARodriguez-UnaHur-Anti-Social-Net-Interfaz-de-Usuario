@@ -1,10 +1,7 @@
-﻿node_modules/
+node_modules/
 .env
 .env.*
 !.env.example
 dist/
 coverage/
 *.log
-
-backend/trabajo-practico-2-data-forever/src/public/uploads/*
-!backend/trabajo-practico-2-data-forever/src/public/uploads/.gitkeep
